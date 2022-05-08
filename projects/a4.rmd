@@ -1,0 +1,426 @@
+---
+title: "a4"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+1(a)
+
+suppose we want to estimate how much the following colors are in the color crimson$\\$
+1) how much red, green, blue$\\$
+2) how much red, scarlet, cherry (some color looks like red)$\\$
+we know it's easier and more precisise to estimate with set 1). this is because the variables red green blue are very different from each other, the answer would be like 90% red 5% green 5% blue$\\$
+however it's hard to estimate the second set because the variables are very much alike, the result of mixing 33% red 33% scarlet 33% cherry could be very similar to mixing 100% cherry 0% others. thus we don't have confidence on our esitmated result.$\\$
+when the variables are alike (scale multiple of one another) or when the variables are corelated to each other(linearly dependent or close to it), as the case of 2), we call it multicoliearity and it result in uncertainty of our estimate. 
+$\\$
+
+
+\newpage
+
+1(b)
+
+```{r}
+data <- read.csv("HigherEducation.csv", header=T)
+attach(data)
+X=cbind(Accept, Enroll,Top10perc, Top25perc, F.Undergrad, P.Undergrad, Outstate, Room.Board, Books, Personal, PhD, Terminal, S.F.Ratio, perc.alumni, Expend, Grad.Rate)
+detach(data)
+y=data$Apps
+Xtrain=X[1:600,]
+ytrain=y[1:600]
+Xtest=X[601:777,]
+ytest=y[601:777]
+data.train=data[1:600,]
+data.test=data[601:777,]
+library(regclass)
+fit.ls=lm(Apps~.,data=data.train)
+VIF(fit.ls)
+
+```
+We observe there is multicoliearity issue, typically, 2(Enroll) and 5(F.Undergrad) are most problematic because the can be well esitmated by the other variables (variables excpet itself and App), esitmating them with other variables have small MSE so they have large VIF.
+
+
+\newpage
+
+1(c)
+```{r}
+library(glmnet)
+fit.Lasso=glmnet(Xtrain , ytrain , alpha=1, lambda=35,
+                 standardize=TRUE, intercept = TRUE ,  family = "gaussian")
+fit.Lasso$beta
+
+
+lassos=abs(as.array(fit.Lasso$beta))
+order=order(lassos,decreasing=TRUE)
+sort(lassos,decreasing = TRUE)
+order
+```
+we choose variable 3, 13, 16, 11, 14, 12, 1. the ones that has beta above 0.1. we observe the problematic variables in (b) are not selected, this is expected because we shouldn't incorporate variables with high multicolinearity issue.\\ however some variable with small multicolinearity issue (VIF > 5) are choosen, this could be reasonable if the variables they are correlated with isn't in the model, however this information is not shown by VIF.
+
+
+\newpage
+
+1(d)
+```{r}
+predict.lasso = predict(fit.Lasso,newx=Xtest)
+ndata=subset(data.test, select = -c(Apps))
+predict.ls = predict(fit.ls, ndata)
+summary(predict.ls-ytest)
+summary(predict.lasso-ytest)
+t(predict.lasso-ytest)%*%(predict.lasso-ytest)/length(ytest)
+t(predict.ls-ytest)%*%(predict.ls-ytest)/length(ytest)
+```
+we observe lasso performs slightly better than lease squares. this is because lasso avoid overfitting through variable selection
+
+\newpage
+2(a)
+```{r}
+
+library(lars)
+
+HE.lasso = lars(Xtrain , ytrain, type="lasso")
+
+plot(HE.lasso)
+HE.lasso
+
+
+
+```
+we choose 1th, 3th, 15th, 7th, 8th, 16th entry
+\newpage
+
+2(b)
+
+```{r}
+HE.step = lars(Xtrain , ytrain , type="step")
+
+plot(HE.step)
+
+HE.step
+```
+We obeserve the list of first 5 variable that enter is exactly the same for lasso and stepwise. they are very much similar
+
+\newpage
+2(c)
+
+
+```{r}
+set.seed(444)
+fit.cv = cv.glmnet(Xtrain,ytrain,nfolds = 10, type.measure = 'mse')
+# choice of lambda
+lambd=fit.cv$lambda.min
+lambd
+fit.Lasso=glmnet(Xtrain , ytrain , alpha=1, lambda=lambd,
+                 standardize=TRUE, intercept = TRUE ,  family = "gaussian")
+
+
+predict.lasso = predict(fit.Lasso,newx=Xtest)
+ndata=subset(data.test, select = -c(Apps))
+predict.ls = predict(fit.ls, ndata)
+
+t(predict.lasso-ytest)%*%(predict.lasso-ytest)/length(ytest)
+
+
+```
+
+\newpage
+
+2(d)
+
+```{R}
+# 10 fold cross-validation
+set.seed(444)
+alpha=seq(0,1,0.25)
+CV.To.Plot=data.frame(alpha=NA,lambda=NA,MSE=NA)
+for (i in 1:length(alpha)){
+  cv10fold=cv.glmnet(Xtrain, ytrain, type.measure = "mse", nfolds=10,alpha=alpha[i])
+  lambda=cv10fold$lambda.min
+  mse=min(cv10fold$cvm)
+  CV.To.Plot[i,]=c(alpha[i],lambda,mse)
+}
+lambd=CV.To.Plot[which.min(CV.To.Plot$MSE),]$lambda
+alph=CV.To.Plot[which.min(CV.To.Plot$MSE),]$alpha
+fit.Lasso=glmnet(Xtrain , ytrain , alpha=alph, lambda=lambd,
+                 standardize=TRUE, intercept = TRUE ,  family = "gaussian")
+
+
+predict.lasso = predict(fit.Lasso,newx=Xtest)
+ndata=subset(data.test, select = -c(Apps))
+predict.ls = predict(fit.ls, ndata)
+
+t(predict.lasso-ytest)%*%(predict.lasso-ytest)/length(ytest)
+
+
+```
+
+
+\newpage
+
+3(a)
+
+we have p variables and n datas\\
+we minimuze
+$$\sum_{i=1}^n(y_i-X_i^T\beta)^2+\lambda\sum_{j=1}^p(\beta_j^2)$$
+which is $$\sum_{i=1}^n(y_i-X_i^T\beta)^2+\sum_{j=1}^p(0-\sqrt\lambda \beta_j)^2$$
+which can be expressed as matrix $X^*$ 
+$$
+\begin{matrix}
+Z_{11} & Z_{12} & ... & Z_{1p}\\
+Z_{21} & Z_{22} & ... & Z_{np}\\
+\sqrt\lambda & 0&...&0\\
+0&\sqrt\lambda &...&0\\
+0 & 0&...&\sqrt\lambda
+\end{matrix}
+$$
+and $Y^*$ as $[Y_1, ... ,Y_N,0,0...0]^T$
+
+
+\newpage
+
+3(b)
+```{r}
+# scale X_test
+
+
+Xscale=X[ , c(3,11,14)]
+for (i in 1:ncol(Xscale)){
+  Xscale[,i]=(Xscale[,i]-mean(Xscale[,i]))/sd(Xscale[,i])
+}
+inv=diag(ncol(Xscale))*10
+
+Xscaled=rbind(Xscale,inv)
+Y=c(y, rep(0,3))
+
+length(Y)
+nrow(X)
+
+model=lm(Y~Xscaled)
+summary(model)
+library(MASS)
+inv=diag(ncol(Xscale))*100
+ginv(t(Xscale)%*%Xscale+inv)%*%t(Xscale)%*%y
+
+
+```
+
+we observe the result on $\hat\beta$ is almost exactly the same. the difference is due to intercept is ommit.
+
+\newpage
+4(a)
+```{r}
+library(mmnst) 
+data=read.csv('AuditoryCortexData.csv')
+Data=list(c())
+j=1
+for(i in 1:50){
+  Data[[i]] =  data[,i]
+  good = complete.cases(Data[[i]])
+  Data[[i]] = Data[[i]][good]
+  
+  # Data[[i]] =  Data[[j]][ Data[[j]]>0 &  Data[[j]]<10]
+  i=i+1
+}
+
+RasterPlot("CRCNS Challange Data" , Data)
+```
+we dont observe strong wave light pattern. however, it's clear that from time 0-5, there is more spikes then time 6-10
+
+
+\newpage
+
+(b)
+```{r}
+t.min = 0
+t.max = 10 
+Unlist.Data=unlist(Data)
+cv.output <- RDPCrossValidation(Data, 0 , t.max, max.J=6)
+cv.output$lambda.ISE #Optimum lambda
+cv.output$J.ISE #Optimum J
+
+Terminal.Points = seq(t.min,t.max,length=2^cv.output$J.ISE+1)
+
+Sig = sum(Unlist.Data<=Terminal.Points[2])
+for(i in 3:length(Terminal.Points)){
+  Sig[(i-1)] = sum(Unlist.Data<=Terminal.Points[i] &
+                     Unlist.Data>Terminal.Points[(i-1)] )
+}
+ct = PoissonRDP(Sig , cv.output$lambda.ISE)  # the original cv.output$lambda.ISE/log(length(Sig)) is incorrect
+t = seq(0,10,length=length(ct))
+plot(ct~t,type="s", cex.axis=1.5 , cex.lab = 1.5 ,ylab="c(t)")
+ct1=ct
+
+
+```
+
+
+
+\newpage
+(c)
+```{r}
+s=Sys.time()
+pooldata=list()
+uData=unlist(Data)
+for (i in 1:length(unlist(Data))){
+  pooldata[[i]]=uData[i]
+}
+
+
+cv.output <- RDPCrossValidation(pooldata, 0 , t.max, max.J=6,  poss.lambda = seq(0, 10, by = 2))
+cv.output$J.ISE #Optimum J
+cv.output$lambda.ISE#optimum lambda
+
+Terminal.Points = seq(t.min,t.max,length=2^cv.output$J.ISE+1)
+
+Sig = sum(Unlist.Data<=Terminal.Points[2])
+for(i in 3:length(Terminal.Points)){
+  Sig[(i-1)] = sum(Unlist.Data<=Terminal.Points[i] &
+                     Unlist.Data>Terminal.Points[(i-1)] )
+}
+ct = PoissonRDP(Sig , cv.output$lambda.ISE)  # the original cv.output$lambda.ISE/log(length(Sig)) is incorrect
+ct2=ct
+t = seq(0,10,length=length(ct))
+plot(ct~t,type="s", cex.axis=1.5 , cex.lab = 1.5 ,ylab="c(t)")
+
+e=Sys.time()
+e-s
+```
+
+
+
+
+
+
+\newpage
+(d)
+```{r}
+jIse=c()
+lambdaIse=c()
+for (i in 1:50){
+  pdatai=list()
+  ii=Data[[i]]
+  for (j in 1:length(ii)){
+    pdatai[[j]]=ii[j]
+  }
+  t.min=0
+  t.max=10
+  rdpcv=RDPCrossValidation(pdatai, t.min , t.max, max.J=6,  poss.lambda = seq(0, 5, by = 0.5),print.J.value = FALSE, pct.diff.plot = FALSE)
+  jIse=c(jIse,rdpcv$J.ISE)
+  lambdaIse=c(lambdaIse, rdpcv$lambda.ISE)
+}
+
+getmode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+hist(jIse)
+table(jIse)
+# best lambda
+blambda=mean(lambdaIse)
+blambda
+# best j
+bise=getmode(jIse)
+bise
+
+hist(lambdaIse, breaks=seq(min(lambdaIse),10))
+
+Terminal.Points = seq(t.min,t.max,length=2^bise+1)
+
+Sig = sum(Unlist.Data<=Terminal.Points[2])
+for(i in 3:length(Terminal.Points)){
+  Sig[(i-1)] = sum(Unlist.Data<=Terminal.Points[i] &
+                     Unlist.Data>Terminal.Points[(i-1)] )
+}
+ct = PoissonRDP(Sig , blambda)  # the original cv.output$lambda.ISE/log(length(Sig)) is incorrect
+ct3=ct
+t = seq(0,10,length=length(ct))
+plot(ct~t,type="s", cex.axis=1.5 , cex.lab = 1.5 ,ylab="c(t)")
+
+
+
+```
+
+
+
+
+\newpage
+(e)
+```{r}
+#draw some graphs
+t1 = seq(0,10,length=length(ct1))
+t2 = seq(0,10,length=length(ct2))
+t3 = seq(0,10,length=length(ct3))
+
+par(mfrow=c(1,3))
+plot(ct1~t1,type="s", cex.axis=1.5 , cex.lab = 1.5 ,ylab="c(t)")
+plot(ct2~t2,type="s", cex.axis=1.5 , cex.lab = 1.5 ,ylab="c(t)")
+plot(ct3~t3,type="s", cex.axis=1.5 , cex.lab = 1.5 ,ylab="c(t)")
+
+
+
+```
+
+\newpage
+
+(f)
+
+
+```{r}
+# draw gof graph for second fit
+ct<-FindCt(Data, 0 , 10, 0, 3)
+
+#Setting the fits for each trial to a funcion and calculating it at 500 points
+t = seq(t.min,t.max,length=500)
+theta = matrix(NA,nrow=500,ncol=dim(ct[[2]])[1])
+Terminal.Points = seq(t.min,t.max,length=2^3+1)
+for(i in 1:ncol(theta)){
+  ct.function.i = stepfun(Terminal.Points , c(0,ct[[2]][i,],0))
+  theta[,i] = ct.function.i(t) # the original FindCt[,i] = ct.function.i(t) is incorrect
+}
+
+# Goodness of fit test
+GOFPlot(
+  Data,
+  theta,
+  t.start = t.min,
+  t.end = t.max,
+  neuron.name = NULL,
+  resolution = (t.max - t.min)/(length(theta) - 1),
+  axis.label.size = 18,
+  title.size = 24
+)
+
+# gof of first/third fit
+ct<-FindCt(Data, 0 , 10, 0, 1)
+
+#Setting the fits for each trial to a funcion and calculating it at 500 points
+t = seq(t.min,t.max,length=500)
+theta = matrix(NA,nrow=500,ncol=dim(ct[[2]])[1])
+Terminal.Points = seq(t.min,t.max,length=2^1+1)
+for(i in 1:ncol(theta)){
+  ct.function.i = stepfun(Terminal.Points , c(0,ct[[2]][i,],0))
+  theta[,i] = ct.function.i(t) # the original FindCt[,i] = ct.function.i(t) is incorrect
+}
+
+# Goodness of fit test
+GOFPlot(
+  Data,
+  theta,
+  t.start = t.min,
+  t.end = t.max,
+  neuron.name = NULL,
+  resolution = (t.max - t.min)/(length(theta) - 1),
+  axis.label.size = 18,
+  title.size = 24
+)
+
+
+``` 
+
+we don't observe a strong pattern in gof plot. However 2 bins histograms does not give much information and looks wierd, so j=3 seems a better choice. so the model in part(c) is more appealing. This does not mean part(a) and (d) are not good fit. As the data itself has no strong pattern except there's less spikes after 5 seconds.
+

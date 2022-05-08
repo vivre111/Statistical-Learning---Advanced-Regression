@@ -1,0 +1,54 @@
+\contentsline {section}{\numberline {1}Course Information}{4}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Contact}{4}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Grade}{4}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Global modelling methods}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Quick review of linear regression}{4}{subsection.2.1}%
+\contentsline {subsubsection}{\numberline {2.1.1}Simple Linear Regression}{4}{subsubsection.2.1.1}%
+\contentsline {subsubsection}{\numberline {2.1.2}Multiple Linear Regression}{4}{subsubsection.2.1.2}%
+\contentsline {subsubsection}{\numberline {2.1.3}Least squares estimation}{4}{subsubsection.2.1.3}%
+\contentsline {subsubsection}{\numberline {2.1.4}Alternative methods to ordinary least squares regression}{6}{subsubsection.2.1.4}%
+\contentsline {subsubsection}{\numberline {2.1.5}Influential Points}{6}{subsubsection.2.1.5}%
+\contentsline {subsubsection}{\numberline {2.1.6}Reducible vs. irreducible errors}{6}{subsubsection.2.1.6}%
+\contentsline {subsubsection}{\numberline {2.1.7}Bias-Variance tradeoff}{6}{subsubsection.2.1.7}%
+\contentsline {subsubsection}{\numberline {2.1.8}Cross-Validation: Basic idea}{7}{subsubsection.2.1.8}%
+\contentsline {subsubsection}{\numberline {2.1.9}Leave-One-Out CV: LOOCV}{7}{subsubsection.2.1.9}%
+\contentsline {subsubsection}{\numberline {2.1.10}Generalized Cross-Validation:GCV}{8}{subsubsection.2.1.10}%
+\contentsline {subsubsection}{\numberline {2.1.11}Best-subset selection}{8}{subsubsection.2.1.11}%
+\contentsline {subsubsection}{\numberline {2.1.12}Forward/Backward-stepwise selection}{8}{subsubsection.2.1.12}%
+\contentsline {subsection}{\numberline {2.2}Regularized regression models}{9}{subsection.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.1}Weighted Least Squares}{9}{subsubsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2}choice of W}{9}{subsubsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.3}Application of weighted least sqaures}{9}{subsubsection.2.2.3}%
+\contentsline {subsubsection}{\numberline {2.2.4}Genralized least squares}{10}{subsubsection.2.2.4}%
+\contentsline {subsection}{\numberline {2.3}Robust regression and breakdown}{10}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}motivation}{10}{subsubsection.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.3.2}Iteratively Reweighted Least Squares}{10}{subsubsection.2.3.2}%
+\contentsline {subsubsection}{\numberline {2.3.3}Sensitivity Curve}{11}{subsubsection.2.3.3}%
+\contentsline {subsubsection}{\numberline {2.3.4}breakdown point}{11}{subsubsection.2.3.4}%
+\contentsline {section}{\numberline {3}Locally adaptive methods(smooth functions)}{11}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Local linear regression}{11}{subsection.3.1}%
+\contentsline {subsubsection}{\numberline {3.1.1}Introduction to local regression}{11}{subsubsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.2}model for subset of of data}{12}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Smoothing splines}{13}{subsection.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.1}Geometry of Polynomial Regression}{13}{subsubsection.3.3.1}%
+\contentsline {subsubsection}{\numberline {3.3.2}Linear Basis Expansion}{13}{subsubsection.3.3.2}%
+\contentsline {subsubsection}{\numberline {3.3.3}degree of freedom}{14}{subsubsection.3.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.4}Smoothing spline}{14}{subsubsection.3.3.4}%
+\contentsline {subsubsection}{\numberline {3.3.5}choosing $\lambda $}{14}{subsubsection.3.3.5}%
+\contentsline {subsubsection}{\numberline {3.3.6}Eigen Decomposition}{15}{subsubsection.3.3.6}%
+\contentsline {subsubsection}{\numberline {3.3.7}Multidimensional Splines}{15}{subsubsection.3.3.7}%
+\contentsline {subsubsection}{\numberline {3.3.8}Tensor Product}{15}{subsubsection.3.3.8}%
+\contentsline {subsubsection}{\numberline {3.3.9}thin plate splines}{15}{subsubsection.3.3.9}%
+\contentsline {subsubsection}{\numberline {3.3.10}additive spline model}{15}{subsubsection.3.3.10}%
+\contentsline {subsubsection}{\numberline {3.3.11}Moving beyond linearity}{16}{subsubsection.3.3.11}%
+\contentsline {subsection}{\numberline {3.4}Kernel method}{16}{subsection.3.4}%
+\contentsline {subsubsection}{\numberline {3.4.1}Local weighting}{16}{subsubsection.3.4.1}%
+\contentsline {subsubsection}{\numberline {3.4.2}smoothing matrix svd}{16}{subsubsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.5}Density/intensity function estimate}{16}{subsection.3.5}%
+\contentsline {subsubsection}{\numberline {3.5.1}Lasso and Ridge}{16}{subsubsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.6}kernel density estimation}{16}{subsection.3.6}%
+\contentsline {section}{\numberline {4}Preditive accuracy}{17}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Roles of training and test data, cross-validation, etc}{17}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Bias/Variance trade-off and parameter choice}{17}{subsection.4.2}%
+\contentsline {section}{\numberline {5}Locally adaptive methods(tree-based methods)}{17}{section.5}%
+\contentsline {subsection}{\numberline {5.1}regression trees}{17}{subsection.5.1}%
